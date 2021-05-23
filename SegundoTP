@@ -1,0 +1,50 @@
+from numba import cuda
+import numpy
+from numpy import random
+import numpy
+
+
+@cuda.jit
+def my_kernel(matriz_a, matriz_b, matriz_c, width):
+    # Thread id in a 1D block
+    i = cuda.blockIdx.y * width + cuda.threadIdx.y 
+    # Block id in a 1D grid
+    j = cuda.blockIdx.x * width + cuda.threadIdx.x 
+
+    k = 0
+    soma = 0
+    while(k < 2):
+      soma += matriz_a[i][k] * matriz_b[k][j]
+      k = k + 1
+
+    j += 1 
+    matriz_c[i][j-1] = soma      
+    i += 1
+    soma = 0   
+
+       
+
+
+
+
+matriz_a = [ [2, 3], [1, 0] ]
+matriz_b = [ [3, 1], [2, 4] ]
+matriz_c =  [ [0, 0], [0, 0] ]
+
+a = numpy.array(matriz_a)
+b = numpy.array(matriz_b)
+c = numpy.array(matriz_c)
+
+# números de threads por bloco
+threads_per_block = 2
+
+# número de blocos por grid
+blocks_per_grid = (16 + (threads_per_block-1))
+
+my_kernel[blocks_per_grid, threads_per_block](a, b, c, 2)
+
+print( "Matriz resultante esperada: \n" , numpy.matmul(matriz_a, matriz_b) )
+
+print ("\n\n")
+
+print("Matriz resultante obtida: \n" , c)
