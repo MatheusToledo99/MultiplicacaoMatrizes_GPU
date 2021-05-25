@@ -6,22 +6,17 @@ import numpy
 
 @cuda.jit
 def my_kernel(matriz_a, matriz_b, matriz_c, width):
-    # Thread id in a 1D block
-    i = cuda.blockIdx.y * width + cuda.threadIdx.y 
-    # Block id in a 1D grid
-    j = cuda.blockIdx.x * width + cuda.threadIdx.x 
 
-    k = 0
-    soma = 0
-    while(k < 2):
-      soma += matriz_a[i][k] * matriz_b[k][j]
-      k = k + 1
+  i = cuda.threadIdx.x 
+  j = cuda.blockIdx.x
 
-    j += 1 
-    matriz_c[i][j-1] = soma      
-    i += 1
-    soma = 0   
-
+  x = 0
+  soma = 0
+  if i < width and j < width:
+    while( x < width):
+      soma = soma + matriz_a[i][x] * matriz_b[x][j]
+      x += 1
+      matriz_c[i][j] = soma
        
 
 
@@ -43,8 +38,10 @@ blocks_per_grid = (16 + (threads_per_block-1))
 
 my_kernel[blocks_per_grid, threads_per_block](a, b, c, 2)
 
-print( "Matriz resultante esperada: \n" , numpy.matmul(matriz_a, matriz_b) )
+print("UNIFAGOC - CENTRO UNIVERSITARIO GOVERNADOR OZANAM COELHO\n\nMatheus Jose Ferreira Toledo.\n\n\nO objetivo do programa é realizar a multiplicação de duas matrizes em GPU,\ncomputando dessa maneira, paralelamente a multiplicação")
+
+print( "\n\nMatriz resultante esperada pela funcao matmul: \n" , numpy.matmul(matriz_a, matriz_b) )
 
 print ("\n\n")
 
-print("Matriz resultante obtida: \n" , c)
+print("Matriz resultante obtida pela computação em GPU: \n" , c)
